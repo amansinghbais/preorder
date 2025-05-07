@@ -334,8 +334,7 @@
                 <!-- internationalized while preparation -->
                 <p>{{ listData.listingTimeAndStatus }}</p>
               </ion-label>
-              <ion-label v-if="listData.shopifyShopProductId && listData.status" :color="listData.containsError ? 'danger' : (listData.status === 'inactive' ? 'warning' : 'success')" slot="end">
-                <h5>{{ $t(listData.listingStatus) }}</h5>
+              <ion-label v-if="listData.shopifyShopProductId && listData.status" :color="listData.status === 'disconnected' ? 'medium' : (listData.containsError ? 'danger' : (listData.status === 'inactive' ? 'warning' : 'success'))" slot="end">                <h5>{{ $t(listData.listingStatus) }}</h5>
               </ion-label>
               <ion-label v-else-if="listData.shopifyShopProductId" color="medium" slot="end">
                 <h5>{{ $t("No listing data") }}</h5>
@@ -1027,7 +1026,7 @@ export default defineComponent({
           },
           "orderBy": "name ASC",
           "entityName": "ShopifyShopAndConfig",
-          "fieldList": ["shopifyConfigId", "shopId", "name"],
+          "fieldList": ["accessScopeEnumId", "shopifyConfigId", "shopId", "name"],
           "viewSize": 20
         } as any
 
@@ -1117,7 +1116,10 @@ export default defineComponent({
             if(listData.listingTime) {
               listingTime = DateTime.fromFormat(listData.listingTime, "MMM dd,yyyy HH:mm:ss").toLocaleString(DateTime.DATETIME_MED);
             }
-            if (!listData.containsError) {
+            if(listData.accessScopeEnumId === 'SHOP_NO_ACCESS') {
+              listData.status = 'disconnected'
+              listData.listingStatus = 'Disconnected'
+            } else if (!listData.containsError) {
               if (listData.status === 'inactive') {
                 // showing the job's runTime as listing time, and not showing listing time if not present
                 listingTime && (listData.listingTimeAndStatus = this.$t("Delisted at", { listingTime }))
